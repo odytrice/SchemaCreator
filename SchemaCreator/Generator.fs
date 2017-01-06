@@ -9,7 +9,7 @@ open DGML
 
 let Generate () =
     //Prompt for outputfile name and connection string
-    let outputFile = "test.dgml"
+    let outputFile = IO.Path.Combine(IO.Directory.GetCurrentDirectory(), @"..\..\test.dgml")
     let connectionString = @"Data Source=(local);Initial Catalog=CBTService;Integrated Security=SSPI;"
 
     use conn = new SqlConnection(connectionString)
@@ -21,22 +21,22 @@ let Generate () =
     dgmlHelper.BeginElement("Nodes")
     for table in database.Tables do
         // Create Nodes              
-        dgmlHelper.WriteNode(table.ID.ToString(), table.Schema + "." + table.Name, String.Empty);
+        dgmlHelper.WriteNode(table.ID.ToString(), table.Name, String.Empty)
 
-    dgmlHelper.EndElement();
+    dgmlHelper.EndElement()
 
-    dgmlHelper.BeginElement("Links");
+    dgmlHelper.BeginElement("Links")
     for table in database.Tables do
         // Create Links
         for key in table.ForeignKeys do
             let toTable = database.Tables.[key.ReferencedTable, key.ReferencedTableSchema]
-            dgmlHelper.WriteLink(table.ID.ToString(), toTable.ID.ToString(), key.Name)
+            dgmlHelper.WriteLink(table.ID.ToString(), toTable.ID.ToString(), "Belong to")
 
-    dgmlHelper.EndElement();
+    dgmlHelper.EndElement()
 
     //Close the DGML document
-    dgmlHelper.Close();
+    dgmlHelper.Close()
 
     //Open the DGML in Visual Studio
-    System.Diagnostics.Process.Start(outputFile);
+    //System.Diagnostics.Process.Start(outputFile);
             
